@@ -15,39 +15,45 @@ exit 1
 unset LOG ORIGIN DESTINATION
 
 #Options
-while getopts ":h" option; do
+while getopts ":i:o:l:h" option; do
     case $option in 
+        i) ORIGIN=$OPTARG ;;
+        o) DESTINATION=$OPTARG ;;
+        l) LOG=$OPTARG ;;
         h) Help ;;
     esac
 done
 
-
 #Script
 
-
-
-rsync -av --log-file="$3" "$1" "$2"; 
-
-if [[ -d $1 ]]
-then 
-    echo "Running origin hash...";
-    ORIGIN_HASH=$(find -s "$1" -type f -exec md5 -q {} \; | md5);
-    echo "Running destination hash...";
-    NEW_HASH=$(find -s "$2" -type f -exec md5 -q {} \; | md5);
-else
-    echo "Running origin hash...";
-    ORIGIN_HASH=$(md5 -q "$1");
-    echo "Running destination hash...";
-    NEW_HASH=$(md5 -q "$2");
-fi;
-
-if [ $ORIGIN_HASH = $NEW_HASH ]
+if [[ -n "$ORIGIN" ]]
 then
-    printf "Origin file/dir path: $1 \nMD5 hash: $ORIGIN_HASH \n\n" >> "$3";
-    printf "Destination file/dir path: $2 \nMD5 hash: $NEW_HASH \n\n" >> "$3";
-    echo "MD5 checksum test passed - files copied successfully!\n\n\n"|tee -a "$3";
-else
-    printf "Origin file/dir path: "$1" \nMD5 hash: $ORIGIN_HASH \n\n" >> "$3";
-    printf "Destination file/dir path: "$2" \nMD5 hash: $NEW_HASH \n\n" >> "$3";
-    echo "MD5 checksum test failed - try alternative methods of transfer."|tee -a "$3";
+    rsync -av --log-file="$LOG" "$ORIGIN" "$DESTINATION"; 
+
+    if [[ -d $ORIGIN ]]
+    then 
+        echo "Running origin hash...";
+        ORIGIN_HASH=$(find -s "$ORIGIN" -type f -exec md5 -q {} \; | md5);
+        echo "Running destination hash...";
+        NEW_HASH=$(find -s "$DESTINATION" -type f -exec md5 -q {} \; | md5);
+    else
+        echo "Running origin hash...";
+        ORIGIN_HASH=$(md5 -q "$ORIGIN");
+        echo "Running destination hash...";
+        NEW_HASH=$(md5 -q "$DESTINATION");
+    fi;
+
+    if [ $ORIGIN_HASH = $NEW_HASH ]
+    then
+        printf "Origin file/dir path: $ORIGIN \nMD5 hash: $ORIGIN_HASH \n\n" >> "$LOG";
+        printf "Destination file/dir path: $DESTINATION \nMD5 hash: $NEW_HASH \n\n" >> "$LOG";
+        echo "MD5 checksum test passed - files copied successfully!\n\n\n"|tee -a "$LOG";
+    else
+        printf "Origin file/dir path: "$ORIGIN" \nMD5 hash: $ORIGIN_HASH \n\n" >> "$LOG";
+        printf "Destination file/dir path: "$DESTINATION" \nMD5 hash: $NEW_HASH \n\n" >> "$LOG";
+        echo "MD5 checksum test failed - try alternative methods of transfer."|tee -a "$LOG";
+    fi;
+else 
+    echo "Error: set origin file path using syntax: securecp -i <origin-file-full-path> -o <output-file-full-path> -l <log-file-path>"
+
 fi;
