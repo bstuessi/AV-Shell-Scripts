@@ -1,7 +1,7 @@
 #Created by Brock Stuessi in February 2023
 #This script copies files and confirms a copy with MD5 checksum hash
 
-cp -v -p -r "$1" "$2"; 
+rsync -av --log-file="$3" "$1" "$2"; 
 
 if [[ -d $1 ]]
 then 
@@ -18,8 +18,19 @@ fi;
 
 if [ $ORIGIN_HASH = $NEW_HASH ]
 then
-    echo "MD5 checksum test passed - files copied successfully!";
+    printf "Origin file/dir path: $1 \nMD5 hash: $ORIGIN_HASH \n\n" >> "$3";
+    printf "Destination file/dir path: $2 \nMD5 hash: $NEW_HASH \n\n" >> "$3";
+    echo "MD5 checksum test passed - files copied successfully!\n\n\n"|tee -a "$3";
 else
-    echo "MD5 checksum test failed - try alternative methods of transfer.";
+    printf "Origin file/dir path: "$1" \nMD5 hash: $ORIGIN_HASH \n\n" >> "$3";
+    printf "Destination file/dir path: "$2" \nMD5 hash: $NEW_HASH \n\n" >> "$3";
+    echo "MD5 checksum test failed - try alternative methods of transfer."|tee -a "$3";
 fi;
 
+# echo "Now checking for hash in provided CSV...";
+# SHA_HASH=$(shasum -a 512 "$2");
+
+
+# echo "The hash is associated with 
+
+if [ $() = $NEW_HASH ]
