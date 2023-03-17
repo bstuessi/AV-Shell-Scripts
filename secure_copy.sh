@@ -28,31 +28,28 @@ done
 
 if [[ -n "$ORIGIN" ]]
 then
-    if [[ $DESTINATION =~ "." ]]
+    if [[ "$DESTINATION" =~ "." ]]
         then
             continue
         else
-            mkdir $DESTINATION
+            mkdir "$DESTINATION"
     fi;
 
     rsync -av --log-file="$LOG" "$ORIGIN" "$DESTINATION"; 
 
     echo "File(s) copied successfully"
     echo "Hashing copied file(s)";    
-    if [[ -d $ORIGIN ]]
+    if [[ -d "$DESTINATION" ]]
         then
-        for f in "$DESTINATION"/*; 
-            do mv "$f" "${f// /_}"; 
-        done;
-        SHA_HASH=$(for f in "$DESTINATION"/*; do shasum -a 256 $f; done;);
+        SHA_HASH=$(for f in "${DESTINATION//\\/}"/*; do shasum -a 256 "$f"; done;);
         else
-        SHA_HASH=$(shasum -a 256 $DESTINATION);
+        SHA_HASH=$(shasum -a 256 "$DESTINATION");
     fi;
     echo "Hashing complete\nWriting hash and file paths to log file";
 
     printf "\nOrigin file/dir path: $ORIGIN\n\n" >> "$LOG";
     printf "Destination file/dir path: $DESTINATION \nSHA256 hash(es): \n$SHA_HASH \n\n" >> "$LOG";
-
+    echo '\007';
 #     if [[ -d $ORIGIN ]]
 #     then 
 #         echo "Running origin hash...";
