@@ -14,6 +14,7 @@ exit 1
 
 unset LOG ORIGIN DESTINATION SHASUM
 
+
 #Options
 while getopts ":i:o:l:h" option; do
     case $option in 
@@ -25,6 +26,15 @@ while getopts ":i:o:l:h" option; do
 done
 
 #Script
+
+if [[ -n $LOG ]]
+    then 
+        continue
+    else
+        #set log file to expected value
+        touch "$(dirname "${DESTINATION}")/transfer_log.txt"
+        LOG="$(dirname "${DESTINATION}")/transfer_log.txt"
+fi;
 
 if [[ -n "$ORIGIN" ]]
 then
