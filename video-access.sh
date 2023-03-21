@@ -24,10 +24,10 @@ done
 
 if [[ -n "$INPUT_FILE" ]] 
 then 
-    ffmpeg -i "$INPUT_FILE" -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac "$OUTPUT"${f%."$EXT"}.mp3;
+    ffmpeg -i "$INPUT_FILE" -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac "$OUTPUT"${INPUT_FILE%."$EXT"}.mp4;
 else
     for f in *."$EXT"; 
     do 
-        ffmpeg -nostdin -i $f -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac "$OUTPUT"${f%."$EXT"}.mp3; 
+        ffmpeg -nostdin -i $f -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac "$OUTPUT"${f%."$EXT"}.mp4; 
     done;
 fi;

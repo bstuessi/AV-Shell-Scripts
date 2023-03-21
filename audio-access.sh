@@ -24,10 +24,10 @@ done
 
 if [[ -n "$INPUT_FILE" ]] 
 then 
-    ffmpeg -i "$INPUT_FILE" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${f%."$EXT"}.mp3;
+    ffmpeg -i "$INPUT_FILE" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${INPUT_FILE%."$EXT"}.mp3;
 else
     for f in *."$EXT"; 
     do 
-        ffmpeg -nostdin -i $f -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${f%."$EXT"}.mp3; 
+        ffmpeg -nostdin -i "$f" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${f%."$EXT"}.mp3; 
     done;
 fi;
