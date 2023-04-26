@@ -20,6 +20,10 @@ while getopts "i:f:o:h" option; do
     esac
 done
 
+#setting IFS to deal with spaces in filename
+OIFS="$IFS"
+IFS=$'\n'
+
 #Main function
 
 if [[ -n "$INPUT_FILE" ]] 
@@ -31,3 +35,5 @@ else
         ffmpeg -nostdin -i "$f" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${f%."$EXT"}.mp3; 
     done;
 fi;
+
+IFS="$OIFS"
