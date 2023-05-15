@@ -51,14 +51,25 @@ then
     echo "Hashing copied file(s)";    
     if [[ -d "$DESTINATION" ]]
         then
-        SHA_HASH=$(for f in "${DESTINATION//\\/}"/*; do shasum -a 256 "$f"; done;);
+        MD5_HASH=$(for f in "${DESTINATION//\\/}"/*; do md5 -q "$f"; done;);
         else
-        SHA_HASH=$(shasum -a 256 "$DESTINATION");
+        MD5_HASH=$(md5 -q "$DESTINATION");
     fi;
     echo "Hashing complete\nWriting hash and file paths to log file";
 
     printf "\nOrigin file/dir path: $ORIGIN\n\n" >> "$LOG";
     printf "Destination file/dir path: $DESTINATION \nSHA256 hash(es): \n$SHA_HASH \n\n" >> "$LOG";
+
+    echo "Looking for checksum(s) in DPA..."
+
+    DPA_SEARCH=$(grep "${MD5_HASH}" /Users/mkf26/Documents/code/shell-scripts/csvs/combined-DPA-metadata.csv)
+
+    if [[ -z "$DPA_SEARCH" ]]
+    then
+        echo "The checksum does not appear in the DPA list" | tee "$LOG"
+    else
+        echo "The checksum appears in DPA and is associated with DPA search: $(echo $DPA_SEARCH | grep -Eo ',[0-9]{6,},')" | tee "$LOG" 
+    fi;
     echo '\007';
 #     if [[ -d $ORIGIN ]]
 #     then 
