@@ -68,7 +68,7 @@ then
     then
         echo "The checksum does not appear in the DPA list" | tee "$LOG"
     else
-        echo "The checksum appears in DPA and is associated with the line: ${DPA_SEARCH}" | tee "$LOG" 
+        echo "The checksum appears in DPA and is associated with DPA search: $(echo $DPA_SEARCH | grep -Eo ',[0-9]{6,},')" | tee "$LOG" 
     fi;
     echo '\007';
 #     if [[ -d $ORIGIN ]]
