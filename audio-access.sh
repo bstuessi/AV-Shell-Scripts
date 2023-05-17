@@ -2,9 +2,9 @@
 
 Help() {
     cat <<EOF
-Purpose: This script creates mp3 access files for all audio files of a provided type in a directory. 
+Purpose: This script creates mp3 access files for all audio files of a provided type in a directory or for a specified single file. 
 
-Syntax: $0 - o <relative path to output files> -f <input file extension> -i <optional input file path (for single file)>
+Syntax: $0 - o <relative path to output files> -f <optional file extension to process all files of specific type in directory> -i <optional input file path (for single file)>
 
 EOF
 exit 1
@@ -28,11 +28,11 @@ IFS=$'\n'
 
 if [[ -n "$INPUT_FILE" ]] 
 then 
-    ffmpeg -i "$INPUT_FILE" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${INPUT_FILE%."$EXT"}.mp3;
+    ffmpeg -i "$INPUT_FILE" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a ${OUTPUT%/}/${INPUT_FILE%.*}.mp3;
 else
     for f in *."$EXT"; 
     do 
-        ffmpeg -nostdin -i "$f" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$OUTPUT"${f%."$EXT"}.mp3; 
+        ffmpeg -nostdin -i "$f" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a ${OUTPUT%/}/${f%.*}.mp3; 
     done;
 fi;
 

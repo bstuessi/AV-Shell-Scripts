@@ -1,10 +1,12 @@
+#!/bin/bash
+
 #Help output
 
 Help() {
     cat <<EOF
-Purpose: This script creates mp3 access files for all audio files of a provided type in a directory. 
+Purpose: This script creates mp3 access files for all audio files of a provided type in a directory or for a single file. 
 
-Syntax: $0 - o <optional relative path to output files include hanging '/'> -f <input file extension> -i <optional input file path (for single file)>
+Syntax: $0 - o <relative path to output files location> -f <optional file extension to process all files of specific type in directory> -i <optional input file path (for single file)>
 
 EOF
 exit 1
@@ -24,10 +26,10 @@ done
 
 if [[ -n "$INPUT_FILE" ]] 
 then 
-    ffmpeg -i "$INPUT_FILE" -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac "$OUTPUT"${INPUT_FILE%."$EXT"}.mp4;
+    ffmpeg -i "$INPUT_FILE" -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac ${OUTPUT%/}${INPUT_FILE%.*}.mp4;
 else
     for f in *."$EXT"; 
     do 
-        ffmpeg -nostdin -i $f -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac "$OUTPUT"${f%."$EXT"}.mp4; 
+        ffmpeg -nostdin -i $f -c:v libx264 -pix_fmt yuv420p -preset medium -crf 18 -c:a aac ${OUTPUT%/}${f%.*}.mp4; 
     done;
 fi;
