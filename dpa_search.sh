@@ -14,8 +14,7 @@ EOF
 exit 1
 }
 
-unset LOG ORIGIN DESTINATION SHASUM
-
+unset DPA_SEARCH SEARCH_ARR FILE
 
 #Options
 while getopts ":d:h" option; do
@@ -29,23 +28,36 @@ if [[ -n $DPA ]]
     then 
         continue
     else
+    # CHANGE THIS LINE TO LOCATION OF CSV!
         DPA='/Users/mkf26/Documents/code/shell-scripts/csvs/combined-DPA-metadata.csv'
 fi;
 
 FILE="$1"
 
-echo "Generating MD5 checksum for file..."
+if [[ -d "$FILE" ]]
+    then
+    echo ""$FILE" is a directory \n"
+    exit
+fi;
+
+if [[ ${FILE:t} == "transfer_log.txt" ]]
+    then 
+    exit
+fi;
+
+echo "Generating MD5 checksum for file and searching in DPA...\n"
 
 MD5_HASH=$(md5 -q "$FILE")
 
-echo "Looking for checksum in DPA..."
+echo "MD5 checksumfor ${FILE:t} is: $MD5_HASH"
 
 DPA_SEARCH=$(grep "${MD5_HASH}" "$DPA")
+
 
 if [[ -z "$DPA_SEARCH" ]]
 then
     echo "The checksum for ${FILE:t} does not appear in the DPA list"
 else
     IFS="," read -rA SEARCH_ARR <<< $DPA_SEARCH
-    echo "The checksum for ${FILE:t} appears in DPA and is associated with DPA file ID(s): ${SEARCH_ARR[8]}"
+    echo "The checksum for ${FILE:t} appears in DPA and is associated with DPA file: ${SEARCH_ARR[3]}"
 fi;

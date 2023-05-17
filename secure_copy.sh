@@ -19,7 +19,7 @@ unset LOG ORIGIN DESTINATION SHASUM
 while getopts ":i:o:l:h" option; do
     case $option in 
         i) ORIGIN=$OPTARG ;;
-        o) DESTINATION=$OPTARG ;;
+        o) DESTINATION=${OPTARG%/} ;;
         l) LOG=$OPTARG ;;
         h) Help ;;
     esac
@@ -27,38 +27,50 @@ done
 
 #Script
 
-if [[ -n $LOG ]]
-    then 
-        continue
-    else
-        #set log file to expected value
-        touch "$(dirname "${DESTINATION}")/transfer_log.txt"
-        LOG="$(dirname "${DESTINATION}")/transfer_log.txt"
-fi;
+
 
 if [[ -n "$ORIGIN" ]]
 then
-    if [[ "$DESTINATION" =~ "." ]]
+    if [[ ! "$DESTINATION" =~ "." ]]
         then
-            continue
-        else
-            mkdir "$DESTINATION"
+            [[ ! -d "$DESTINATION" ]] && mkdir "$DESTINATION"
+            [[ -f "$ORIGIN" ]] && DESTINATION=$DESTINATION/$(basename "$ORIGIN")
+
+    fi;
+
+    if [[ -n $LOG ]]
+    then 
+        continue
+    else
+        if [[ -d "$DESTINATION" ]]
+            then 
+                #set log file to expected value
+                touch "$DESTINATION"/transfer_log.txt
+                LOG="$DESTINATION"/transfer_log.txt
+            else
+                #set log file to expected value
+                touch $(dirname "${DESTINATION}")/transfer_log.txt
+                LOG=$(dirname "${DESTINATION}")/transfer_log.txt
+                
+        fi;
     fi;
 
     rsync -av --log-file="$LOG" "$ORIGIN" "$DESTINATION"; 
-
-    echo "File(s) copied successfully"
-    echo "Hashing copied file(s)";    
+    
+    printf "\n" >> "$LOG"
+    echo "File(s) copied successfully"   
     if [[ -d "$DESTINATION" ]]
         then
-        MD5_HASH=$(for f in "${DESTINATION//\\/}"/*; do md5 -q "$f"; done;);
+            for f in "${DESTINATION//\ \/}"/*; 
+                do
+                zsh dpa_search.sh "$f" | tee "$LOG";
+                printf "\n\n" >> "$LOG";
+            done;
         else
-        MD5_HASH=$(md5 -q "$DESTINATION");
+            zsh dpa_search.sh "$DESTINATION" | tee "$LOG";
+            printf "\n\n" >> "$LOG";
     fi;
-    echo "Hashing complete\nWriting hash and file paths to log file";
-
-    printf "\nOrigin file/dir path: $ORIGIN\n\n" >> "$LOG";
-    printf "Destination file/dir path: $DESTINATION \nSHA256 hash(es): \n$SHA_HASH \n\n" >> "$LOG";
+  
 
     echo '\007';
 #     if [[ -d $ORIGIN ]]
