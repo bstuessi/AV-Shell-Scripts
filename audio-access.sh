@@ -8,7 +8,7 @@ Syntax: $0 - o <relative path to output files> -f <optional file extension to pr
 
 EOF
 exit 1
-}
+} 
 
 #Options
 while getopts "i:f:o:h" option; do
@@ -25,14 +25,20 @@ OIFS="$IFS"
 IFS=$'\n'
 
 #Main function
+OUTPUT_FILE=${OUTPUT%/}/${INPUT_FILE%.*}.mp3;
+FORMATTED_OUTPUT_FILE="${OUTPUT_FILE// /_}";
 
 if [[ -n "$INPUT_FILE" ]] 
-then 
-    ffmpeg -i "$INPUT_FILE" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a ${OUTPUT%/}/${INPUT_FILE%.*}.mp3;
+then
+    OUTPUT_FILE=${OUTPUT%/}/${INPUT_FILE%.*}.mp3;
+    FORMATTED_OUTPUT_FILE="${OUTPUT_FILE// /_}"; 
+    ffmpeg -i "$INPUT_FILE" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$FORMATTED_OUTPUT_FILE";
 else
     for f in *."$EXT"; 
     do 
-        ffmpeg -nostdin -i "$f" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a ${OUTPUT%/}/${f%.*}.mp3; 
+        OUTPUT_FILE=${OUTPUT%/}/${f%.*}.mp3;
+        FORMATTED_OUTPUT_FILE="${OUTPUT_FILE// /_}";
+        ffmpeg -nostdin -i "$f" -write_id3v1 1 -id3v2_version 3 -dither_method triangular -qscale:a 1 "$FORMATTED_OUTPUT_FILE"; 
     done;
 fi;
 
